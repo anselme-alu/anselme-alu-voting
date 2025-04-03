@@ -16,17 +16,25 @@ export function VoteButton({
 
   return (
     <Button color="success" onPress={async () => {
-      await vote({
-        election,
-        candidate,
-        voter: user?.id as string
-      })
+      try {
+        await vote({
+          election,
+          candidate,
+          voter: user?.id as string
+        })
 
-      addToast({
-        title: "Vote submitted",
-        description: "Your vote has been submitted successfully.",
-        color: "success",
-      })
+        addToast({
+          title: "Vote submitted",
+          description: "Your vote has been submitted successfully.",
+          color: "success",
+        })
+      } catch (error) {
+        addToast({
+          title: "Error",
+          description: (error as Error).message,
+          color: "danger",
+        })
+      }
     }}>
       Vote
     </Button>

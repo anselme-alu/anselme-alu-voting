@@ -6,25 +6,37 @@ import { Input, Textarea } from "@heroui/input";
 import { useState } from "react";
 import { submitApplication } from "./actions";
 import { addToast } from "@heroui/toast";
+import { useUser } from "@clerk/nextjs";
 
 export default function ApplyForElection({ params }: { params: Promise<{ election_id: number }> }) {
+  const user = useUser();
+
   const [fullName, setFullName] = useState("");
   const [mandate, setMandate] = useState("");
 
   async function submit() {
-    const data = {
-      fullName,
-      mandate,
-      election: (await params).election_id
+    try {
+      const data = {
+        fullName,
+        mandate,
+        election: (await params).election_id,
+        user: user.user?.id as string,
+      }
+
+      await submitApplication(data);
+
+      addToast({
+        title: "Application submitted",
+        description: "Your application has been submitted successfully.",
+        color: "success",
+      })
+    } catch (error) {
+      addToast({
+        title: "Error",
+        description: (error as Error).message,
+        color: "danger",
+      })
     }
-
-    await submitApplication(data);
-
-    addToast({
-      title: "Application submitted",
-      description: "Your application has been submitted successfully.",
-      color: "success",
-    })
   }
 
   return (
